@@ -239,23 +239,6 @@ docker-compose logs -f service-name
 docker-compose logs --tail=50 service-name | grep ERROR
 ```
 
-## 開発への貢献
-
-### 新しいテンプレートの追加
-
-1. 適切なディレクトリに配置
-2. Dockerfile, docker-compose.yml, README.mdを作成
-3. 環境テストスクリプトを追加
-4. このREADMEに情報を追加
-
-### テンプレートの品質基準
-
-- **セキュリティ**: 本番環境対応のセキュリティ設定
-- **開発効率**: ライブリロード、デバッグ対応
-- **ドキュメント**: 詳細なREADMEと使用例
-- **テスト**: 環境テストスクリプト
-- **保守性**: 設定の外部化、環境変数対応
-
 ## 関連リンク
 
 - [Docker公式ドキュメント](https://docs.docker.com/)
