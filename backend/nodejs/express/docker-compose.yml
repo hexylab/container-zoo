@@ -1,0 +1,137 @@
+version: '3.8'
+
+services:
+  express-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: express-backend-dev:latest
+    container_name: express-backend-container
+    
+    # ポート設定
+    ports:
+      - "3000:3000"   # アプリケーションポート
+      - "9229:9229"   # デバッグポート
+    
+    # 環境変数
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - CORS_ORIGIN=http://localhost:3001
+      - DB_URL=mongodb://mongo:27017/express_app
+      - REDIS_URL=redis://redis:6379
+    
+    # ボリュームマウント（開発時のコード同期）
+    volumes:
+      - ./src:/app/src
+      - ./package.json:/app/package.json
+      - ./nodemon.json:/app/nodemon.json
+      - node_modules:/app/node_modules
+    
+    # 依存関係
+    depends_on:
+      - mongo
+      - redis
+    
+    # 開発時の設定
+    stdin_open: true
+    tty: true
+    
+    # ネットワーク
+    networks:
+      - backend-network
+    
+    # リスタート設定
+    restart: unless-stopped
+
+  # MongoDB
+  mongo:
+    image: mongo:7.0
+    container_name: express-mongo
+    
+    ports:
+      - "27017:27017"
+    
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=express_app
+    
+    volumes:
+      - mongo_data:/data/db
+      - ./mongo-init:/docker-entrypoint-initdb.d
+    
+    networks:
+      - backend-network
+    
+    restart: unless-stopped
+
+  # Redis
+  redis:
+    image: redis:7.2-alpine
+    container_name: express-redis
+    
+    ports:
+      - "6379:6379"
+    
+    volumes:
+      - redis_data:/data
+    
+    networks:
+      - backend-network
+    
+    restart: unless-stopped
+    
+    command: redis-server --appendonly yes
+
+  # 管理ツール（オプション）
+  mongo-express:
+    image: mongo-express:1.0
+    container_name: express-mongo-admin
+    
+    ports:
+      - "8081:8081"
+    
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_MONGODB_URL=mongodb://admin:password@mongo:27017/
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=admin
+    
+    depends_on:
+      - mongo
+    
+    networks:
+      - backend-network
+    
+    restart: unless-stopped
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: express-redis-admin
+    
+    ports:
+      - "8082:8081"
+    
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    
+    depends_on:
+      - redis
+    
+    networks:
+      - backend-network
+    
+    restart: unless-stopped
+
+# ネットワーク定義
+networks:
+  backend-network:
+    driver: bridge
+
+# ボリューム定義
+volumes:
+  node_modules:
+  mongo_data:
+  redis_data:

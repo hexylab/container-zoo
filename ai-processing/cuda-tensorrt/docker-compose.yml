@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  cuda-tensorrt-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cuda-tensorrt-dev:latest
+    container_name: cuda-tensorrt-container
+    
+    # GPU設定（runtime指定に変更）
+    runtime: nvidia
+    
+    # ポート設定（Jupyter用）
+    ports:
+      - "8888:8888"
+      - "8889:8889"  # 追加ポート
+    
+    # ボリュームマウント
+    volumes:
+      - ./workspace:/workspace/projects
+      - ./models:/workspace/models
+      - ./data:/workspace/data
+    
+    # 環境変数
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - PYTHONPATH=/workspace
+    
+    # 作業ディレクトリ
+    working_dir: /workspace
+    
+    # デフォルトコマンド（対話モード）
+    stdin_open: true
+    tty: true
+    
+    # ネットワーク設定
+    networks:
+      - cuda-network
+
+# 追加のサービス例（必要に応じて）
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cuda-tensorrt-dev:latest
+    container_name: cuda-jupyter
+    
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    
+    ports:
+      - "8890:8888"
+    
+    volumes:
+      - ./workspace:/workspace/projects
+      - ./notebooks:/workspace/notebooks
+    
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    
+    command: >
+      bash -c "jupyter lab --ip=0.0.0.0 --port=8888 --no-browser 
+               --allow-root --NotebookApp.token='' 
+               --NotebookApp.password=''"
+    
+    networks:
+      - cuda-network
+
+networks:
+  cuda-network:
+    driver: bridge
+
+# ボリューム定義（永続化用）
+volumes:
+  cuda_workspace:
+  cuda_models:
+  cuda_data:
