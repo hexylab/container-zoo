@@ -1,0 +1,55 @@
+# RTSPストリーム用設定例
+# 監視カメラ・IPカメラ対応
+
+input:
+  type: "rtsp"
+  source: "rtsp://username:password@192.168.1.100:554/stream1"
+  fps_limit: 25  # ネットワーク帯域を考慮
+  max_width: 1920
+  max_height: 1080
+
+yolox:
+  model_size: "yolox_s"  # バランス重視
+  confidence_threshold: 0.6
+  nms_threshold: 0.5
+  target_classes: [0, 2, 5, 7]  # person, car, bus, truck
+  device: "auto"
+
+bytetrack:
+  track_thresh: 0.6
+  high_thresh: 0.7
+  match_thresh: 0.8
+  track_buffer: 60  # 長時間の追跡対応
+  frame_rate: 25
+  min_track_length: 25  # 安定した追跡のみ
+
+output:
+  save_video: true
+  video_path: "output/videos/rtsp_stream_{timestamp}.mp4"
+  video_codec: "H264"
+  video_quality: 85
+  save_tracking_data: true
+  tracking_data_path: "output/tracking_data/rtsp_tracks_{timestamp}.json"
+  save_frames: true
+  frames_dir: "output/frames/rtsp_{timestamp}"
+  frame_interval: 150  # 6秒ごとに保存（25fps × 6）
+  save_logs: true
+
+display:
+  show_realtime: true
+  window_width: 1280
+  window_height: 720
+  draw_boxes: true
+  draw_track_ids: true
+  draw_trails: true
+  trail_length: 40
+  show_stats: true
+
+performance:
+  batch_size: 1
+  num_workers: 2  # ネットワーク処理を考慮
+  memory_efficient: true
+  stats_interval: 100
+
+debug:
+  enabled: false

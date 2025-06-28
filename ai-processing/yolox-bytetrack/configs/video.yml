@@ -1,0 +1,53 @@
+# 動画ファイル処理用設定例
+# 高精度処理・結果保存重視
+
+input:
+  type: "video"
+  source: "data/sample.mp4"
+  fps_limit: 0  # 元動画のフレームレートを維持
+  max_width: 1920
+  max_height: 1080
+
+yolox:
+  model_size: "yolox_m"  # 高精度モデル
+  confidence_threshold: 0.5
+  nms_threshold: 0.45
+  target_classes: []  # 全クラス検出
+  device: "auto"
+
+bytetrack:
+  track_thresh: 0.5
+  high_thresh: 0.6
+  match_thresh: 0.8
+  track_buffer: 50  # 長めの追跡バッファ
+  frame_rate: 30
+  min_track_length: 15  # 長めの最小追跡長
+
+output:
+  save_video: true
+  video_path: "output/videos/processed_{timestamp}.mp4"
+  video_codec: "H264"
+  video_quality: 95
+  save_tracking_data: true
+  tracking_data_path: "output/tracking_data/video_tracks_{timestamp}.json"
+  save_frames: true
+  frames_dir: "output/frames/video_{timestamp}"
+  frame_interval: 60  # 60フレームごとに保存
+  save_logs: true
+
+display:
+  show_realtime: false  # バッチ処理モード
+  draw_boxes: true
+  draw_track_ids: true
+  draw_trails: true
+  trail_length: 50
+  show_stats: true
+
+performance:
+  batch_size: 1
+  num_workers: 4
+  memory_efficient: false  # 精度重視
+  stats_interval: 300
+
+debug:
+  enabled: false

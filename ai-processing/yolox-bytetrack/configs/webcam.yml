@@ -1,0 +1,46 @@
+# Webカメラ用設定例
+# リアルタイム処理に最適化
+
+input:
+  type: "webcam"
+  source: 0  # デフォルトカメラ（0, 1, 2...）
+  fps_limit: 30
+  max_width: 1280
+  max_height: 720
+
+yolox:
+  model_size: "yolox_s"  # 軽量モデルでリアルタイム性重視
+  confidence_threshold: 0.6
+  nms_threshold: 0.5
+  target_classes: [0]  # person のみ検出
+  device: "auto"
+
+bytetrack:
+  track_thresh: 0.6
+  high_thresh: 0.7
+  match_thresh: 0.8
+  track_buffer: 30
+  frame_rate: 30
+  min_track_length: 5  # 短めに設定
+
+output:
+  save_video: false  # リアルタイム表示のみ
+  save_tracking_data: true
+  tracking_data_path: "output/tracking_data/webcam_tracks_{timestamp}.json"
+  save_logs: true
+
+display:
+  show_realtime: true
+  window_width: 1280
+  window_height: 720
+  draw_trails: true
+  trail_length: 20
+  show_stats: true
+
+performance:
+  batch_size: 1
+  memory_efficient: true
+  stats_interval: 30
+
+debug:
+  enabled: false
