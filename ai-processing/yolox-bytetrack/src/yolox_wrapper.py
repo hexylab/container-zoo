@@ -19,8 +19,10 @@ from yolox.exp import get_exp
 from yolox.utils import postprocess
 from yolox.data.data_augment import ValTransform
 
-from .config_loader import YOLOXConfig
-from .utils.video_utils import preprocess_frame, postprocess_boxes
+from config_loader import YOLOXConfig
+from utils.video_utils import preprocess_frame, postprocess_boxes
+from utils.decorators import handle_initialization, log_performance
+from utils.exceptions import ModelLoadError, InferenceError
 
 
 class YOLOXWrapper:
@@ -58,10 +60,9 @@ class YOLOXWrapper:
         
         self._initialize()
     
+    @handle_initialization("YOLOX")
     def _initialize(self):
         """初期化処理"""
-        self.logger.info("YOLOX初期化開始")
-        
         # デバイス設定
         self._setup_device()
         
@@ -73,8 +74,6 @@ class YOLOXWrapper:
         
         # 前処理設定
         self._setup_transform()
-        
-        self.logger.info("YOLOX初期化完了")
     
     def _setup_device(self):
         """デバイス設定"""
@@ -194,6 +193,7 @@ class YOLOXWrapper:
         """前処理設定"""
         self.transform = ValTransform(legacy=False)
     
+    @log_performance("YOLOX推論")
     def detect(self, frame: np.ndarray) -> Dict[str, Any]:
         """
         物体検出実行

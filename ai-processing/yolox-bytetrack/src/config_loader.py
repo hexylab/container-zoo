@@ -10,6 +10,11 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, Union
 from dataclasses import dataclass
+from utils.exceptions import ConfigValidationError
+from utils.validators import (
+    validate_threshold, validate_positive_integer, 
+    validate_choice, validate_file_path
+)
 
 
 @dataclass
@@ -115,11 +120,6 @@ class Config:
     debug: DebugConfig
 
 
-class ConfigValidationError(Exception):
-    """設定バリデーションエラー"""
-    pass
-
-
 class ConfigLoader:
     """設定ファイルローダー"""
     
@@ -215,48 +215,30 @@ class ConfigLoader:
     
     def _validate_yolox_config(self, yolox_config: Dict[str, Any]) -> None:
         """YOLOX設定バリデーション"""
+        # モデルサイズバリデーション
         valid_sizes = ['yolox_nano', 'yolox_tiny', 'yolox_s', 'yolox_m', 'yolox_l', 'yolox_x']
         model_size = yolox_config.get('model_size', 'yolox_s')
-        
-        if model_size not in valid_sizes:
-            raise ConfigValidationError(
-                f"不正なモデルサイズ: {model_size}. 有効な値: {valid_sizes}"
-            )
+        validate_choice(model_size, 'model_size', valid_sizes)
         
         # 閾値バリデーション
         conf_thresh = yolox_config.get('confidence_threshold', 0.5)
-        if not 0.0 <= conf_thresh <= 1.0:
-            raise ConfigValidationError(
-                f"confidence_threshold は 0.0-1.0 の範囲で指定してください: {conf_thresh}"
-            )
+        validate_threshold(conf_thresh, 'confidence_threshold')
         
         nms_thresh = yolox_config.get('nms_threshold', 0.45)
-        if not 0.0 <= nms_thresh <= 1.0:
-            raise ConfigValidationError(
-                f"nms_threshold は 0.0-1.0 の範囲で指定してください: {nms_thresh}"
-            )
+        validate_threshold(nms_thresh, 'nms_threshold')
     
     def _validate_bytetrack_config(self, bytetrack_config: Dict[str, Any]) -> None:
         """ByteTrack設定バリデーション"""
         # 閾値バリデーション
         track_thresh = bytetrack_config.get('track_thresh', 0.5)
-        if not 0.0 <= track_thresh <= 1.0:
-            raise ConfigValidationError(
-                f"track_thresh は 0.0-1.0 の範囲で指定してください: {track_thresh}"
-            )
+        validate_threshold(track_thresh, 'track_thresh')
         
         match_thresh = bytetrack_config.get('match_thresh', 0.8)
-        if not 0.0 <= match_thresh <= 1.0:
-            raise ConfigValidationError(
-                f"match_thresh は 0.0-1.0 の範囲で指定してください: {match_thresh}"
-            )
+        validate_threshold(match_thresh, 'match_thresh')
         
         # 正数バリデーション
         track_buffer = bytetrack_config.get('track_buffer', 30)
-        if track_buffer <= 0:
-            raise ConfigValidationError(
-                f"track_buffer は正の値で指定してください: {track_buffer}"
-            )
+        validate_positive_integer(track_buffer, 'track_buffer')
     
     def _validate_output_config(self, output_config: Dict[str, Any]) -> None:
         """出力設定バリデーション"""

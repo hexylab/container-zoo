@@ -1,0 +1,87 @@
+# =============================================================================
+# YOLOX + ByteTrack Environment - Specific .gitignore
+# =============================================================================
+
+# Environment Variables
+.env
+.env.local
+*.env.backup
+
+# Model Files (typically large)
+models/*.pth
+models/*.pt
+models/*.onnx
+models/*.trt
+models/*.engine
+!models/.gitkeep
+
+# Output Files
+output/videos/*.mp4
+output/videos/*.avi
+output/videos/*.mov
+output/frames/*/
+output/tracking_data/*.json
+output/logs/*.log
+output/logs/*.txt
+!output/videos/.gitkeep
+!output/frames/.gitkeep
+!output/tracking_data/.gitkeep
+!output/logs/.gitkeep
+
+# Data Files
+data/videos/*.mp4
+data/videos/*.avi
+data/videos/*.mov
+data/images/*.jpg
+data/images/*.png
+data/datasets/
+!data/videos/.gitkeep
+!data/images/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+*.backup
+*.bak
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb.backup
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+
+# Temporary Files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Configuration Backups
+config.yml.backup
+configs/*.yml.backup
+
+# Test Results
+test_results/
+test_reports/
+
+# Development
+workspace/runs/
+workspace/experiments/
+workspace/temp/
+
+# Logs
+*.log
+logs/

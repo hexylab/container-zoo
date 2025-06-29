@@ -13,10 +13,10 @@ from collections import defaultdict, deque
 
 # ByteTrack関連インポート
 sys.path.append('/workspace/ByteTrack')
-from yolox.tracker.byte_tracker import BYTETracker
-from yolox.tracking_utils.timer import Timer
+from bytetrack_yolox.tracker.byte_tracker import BYTETracker
+from bytetrack_yolox.tracking_utils.timer import Timer
 
-from .config_loader import ByteTrackConfig
+from config_loader import ByteTrackConfig
 
 
 class Track:

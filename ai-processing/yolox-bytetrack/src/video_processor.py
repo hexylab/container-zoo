@@ -13,11 +13,11 @@ import time
 import json
 from datetime import datetime
 
-from .config_loader import Config, InputConfig, OutputConfig, DisplayConfig
-from .utils.video_utils import VideoCapture, create_video_writer, get_video_info, resize_frame
-from .utils.file_utils import ensure_dir, save_json
-from .utils.time_utils import FPSCounter, ProgressTracker, sleep_fps
-from .utils.visualization import ColorPalette, draw_tracks, draw_stats
+from config_loader import Config, InputConfig, OutputConfig, DisplayConfig
+from utils.video_utils import VideoCapture, create_video_writer, get_video_info, resize_frame
+from utils.file_utils import ensure_dir, save_json
+from utils.time_utils import FPSCounter, ProgressTracker, sleep_fps
+from utils.visualization import ColorPalette, draw_tracks, draw_stats
 
 
 class InputSourceProcessor:
