@@ -1,0 +1,144 @@
+version: '3.8'
+
+services:
+  yolox-bytetrack-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: yolox-bytetrack-dev:latest
+    container_name: yolox-bytetrack-container
+    
+    # GPU設定
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    
+    # ポート設定（開発・デバッグ用）
+    ports:
+      - "8888:8888"  # Jupyter Lab
+      - "6006:6006"  # TensorBoard
+    
+    # ボリュームマウント
+    volumes:
+      - ./src:/workspace/src
+      - ./config.yml:/workspace/config.yml
+      - ./configs:/workspace/configs
+      - ./models:/workspace/models
+      - ./data:/workspace/data
+      - ./output:/workspace/output
+    
+    # 環境変数
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - PYTHONPATH=/workspace:/workspace/YOLOX:/workspace/ByteTrack
+      - CUDA_VISIBLE_DEVICES=0
+    
+    # 作業ディレクトリ
+    working_dir: /workspace
+    
+    # デフォルトコマンド（対話モード）
+    stdin_open: true
+    tty: true
+    
+    # ネットワーク設定
+    networks:
+      - yolox-network
+
+  # Jupyter Lab サービス（オプション）
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: yolox-bytetrack-dev:latest
+    container_name: yolox-jupyter
+    
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    
+    ports:
+      - "8890:8888"
+    
+    volumes:
+      - ./src:/workspace/src
+      - ./config.yml:/workspace/config.yml
+      - ./configs:/workspace/configs
+      - ./models:/workspace/models
+      - ./data:/workspace/data
+      - ./output:/workspace/output
+      - ./notebooks:/workspace/notebooks  # Jupyter用
+    
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - PYTHONPATH=/workspace:/workspace/YOLOX:/workspace/ByteTrack
+    
+    command: >
+      bash -c "mkdir -p /workspace/notebooks && 
+               jupyter lab --ip=0.0.0.0 --port=8888 --no-browser 
+               --allow-root --NotebookApp.token='' 
+               --NotebookApp.password=''"
+    
+    networks:
+      - yolox-network
+
+  # WebカメラやRTSP用のストリーミングサービス（オプション）
+  tracking-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: yolox-bytetrack-dev:latest
+    container_name: yolox-tracking-server
+    
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    
+    ports:
+      - "8000:8000"  # HTTP API
+      - "8080:8080"  # WebSocket
+    
+    volumes:
+      - ./src:/workspace/src
+      - ./config.yml:/workspace/config.yml
+      - ./configs:/workspace/configs
+      - ./models:/workspace/models
+      - ./data:/workspace/data
+      - ./output:/workspace/output
+    
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - PYTHONPATH=/workspace:/workspace/YOLOX:/workspace/ByteTrack
+    
+    # デバイスアクセス（カメラ用）
+    devices:
+      - /dev/video0:/dev/video0  # Webカメラアクセス
+    
+    command: python3 src/main.py --config configs/webcam.yml --server-mode
+    
+    networks:
+      - yolox-network
+
+networks:
+  yolox-network:
+    driver: bridge
+
+# ボリューム定義（永続化用）
+volumes:
+  yolox_models:
+  yolox_output:
+  yolox_data:

@@ -1,0 +1,140 @@
+# YOLOX + ByteTrack 物体検出・追跡設定ファイル
+# 設定を変更して様々な入力ソースと出力形式に対応
+
+# === 入力設定 ===
+input:
+  # 入力タイプ: "webcam", "video", "rtsp", "images", "image"
+  type: "video"
+  
+  # 入力ソース（タイプに応じて設定）
+  source: "data/sample.mp4"  # 動画ファイルパス / Webカメラデバイス番号(0,1,2...) / RTSPストリームURL / 画像ディレクトリ
+  
+  # フレームレート制限（0 = 制限なし）
+  fps_limit: 30
+  
+  # 入力解像度制限（0 = 元解像度）
+  max_width: 1920
+  max_height: 1080
+
+# === YOLOX物体検出設定 ===
+yolox:
+  # モデルサイズ: "yolox_nano", "yolox_tiny", "yolox_s", "yolox_m", "yolox_l", "yolox_x"
+  model_size: "yolox_s"
+  
+  # モデルファイルパス（自動ダウンロードまたは手動配置）
+  model_path: "models/yolox_s.pth"
+  
+  # 検出信頼度閾値
+  confidence_threshold: 0.5
+  
+  # NMS（Non-Maximum Suppression）閾値
+  nms_threshold: 0.45
+  
+  # 入力サイズ（YOLOXモデルに応じて調整）
+  input_size: [640, 640]  # [width, height]
+  
+  # 検出対象クラス（空の場合は全クラス、指定した場合はそのクラスのみ）
+  target_classes: []  # 例: [0, 2, 5] (person, car, bus)
+  
+  # デバイス設定: "cuda", "cpu", "auto"
+  device: "auto"
+
+# === ByteTrack追跡設定 ===
+bytetrack:
+  # 追跡開始閾値
+  track_thresh: 0.5
+  
+  # 高信頼度検出閾値
+  high_thresh: 0.6
+  
+  # マッチング閾値
+  match_thresh: 0.8
+  
+  # 追跡バッファサイズ（フレーム数）
+  track_buffer: 30
+  
+  # フレームレート（追跡の時間計算用）
+  frame_rate: 30
+  
+  # 最小追跡長（この長さ未満の追跡は出力しない）
+  min_track_length: 10
+
+# === 出力設定 ===
+output:
+  # 出力ディレクトリ
+  output_dir: "output"
+  
+  # 結果動画出力
+  save_video: true
+  video_path: "output/videos/result_{timestamp}.mp4"
+  video_codec: "mp4v"  # "mp4v", "XVID", "H264"
+  video_quality: 90  # 0-100
+  
+  # 追跡データ出力（JSON形式）
+  save_tracking_data: true
+  tracking_data_path: "output/tracking_data/tracks_{timestamp}.json"
+  
+  # フレーム画像出力
+  save_frames: false
+  frames_dir: "output/frames/{timestamp}"
+  frame_interval: 30  # N フレームごとに保存
+  
+  # ログ出力
+  save_logs: true
+  log_path: "output/logs/log_{timestamp}.txt"
+  log_level: "INFO"  # "DEBUG", "INFO", "WARNING", "ERROR"
+
+# === 表示・可視化設定 ===
+display:
+  # リアルタイム表示
+  show_realtime: true
+  
+  # 表示ウィンドウサイズ
+  window_width: 1280
+  window_height: 720
+  
+  # バウンディングボックス描画
+  draw_boxes: true
+  box_thickness: 2
+  
+  # 追跡ID描画
+  draw_track_ids: true
+  id_font_size: 0.8
+  
+  # 追跡軌跡描画
+  draw_trails: true
+  trail_length: 30
+  
+  # 統計情報表示
+  show_stats: true
+  
+  # カラーパレット（追跡ID別の色分け）
+  color_palette: "auto"  # "auto", "fixed", "rainbow"
+
+# === パフォーマンス設定 ===
+performance:
+  # バッチ処理サイズ
+  batch_size: 1
+  
+  # 並列処理数
+  num_workers: 4
+  
+  # メモリ効率化
+  memory_efficient: true
+  
+  # 統計情報出力間隔（フレーム数）
+  stats_interval: 100
+
+# === デバッグ設定 ===
+debug:
+  # デバッグモード
+  enabled: false
+  
+  # 中間結果保存
+  save_intermediate: false
+  
+  # プロファイリング
+  enable_profiling: false
+  
+  # 詳細ログ
+  verbose: false
