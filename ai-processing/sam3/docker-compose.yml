@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  sam3:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sam3:latest
+    container_name: sam3-container
+
+    # GPU設定
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+    # ボリュームマウント
+    volumes:
+      - ./workspace:/workspace/projects
+      - ./models:/workspace/models
+
+    # 環境変数
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - HF_HOME=/workspace/models/huggingface
+    env_file:
+      - .env
+
+    # 作業ディレクトリ
+    working_dir: /workspace
+
+    # 対話モード
+    stdin_open: true
+    tty: true
+
+networks:
+  default:
+    driver: bridge

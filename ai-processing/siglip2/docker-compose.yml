@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  siglip2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: siglip2:latest
+    container_name: siglip2-container
+
+    # GPU設定
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+    # ボリュームマウント
+    volumes:
+      - ./workspace:/workspace/projects
+      - ./models:/workspace/models
+
+    # 環境変数
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - HF_HOME=/workspace/models/huggingface
+
+    # 作業ディレクトリ
+    working_dir: /workspace
+
+    # 対話モード
+    stdin_open: true
+    tty: true
+
+networks:
+  default:
+    driver: bridge
