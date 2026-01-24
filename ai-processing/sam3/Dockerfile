@@ -5,8 +5,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 ENV TZ=Asia/Tokyo
 
-# システムパッケージのインストール
+# システムパッケージのインストール + deadsnakes PPAでPython 3.12
 RUN apt-get update && apt-get install -y \
+    software-properties-common \
+    && add-apt-repository -y ppa:deadsnakes/ppa \
+    && apt-get update && apt-get install -y \
     python3.12 \
     python3.12-venv \
     python3.12-dev \
@@ -22,6 +25,9 @@ RUN apt-get update && apt-get install -y \
 # Python 3.12をデフォルトに設定
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1 && \
     update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
+
+# pip を Python 3.12 用にインストール
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12
 
 # pipのアップグレード
 RUN python3 -m pip install --upgrade pip setuptools wheel
